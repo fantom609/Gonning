@@ -1,0 +1,4 @@
+host     = surus.db.elephantsql.com
+user     = gspsnnxz
+password = PB5q6H-a7aiPM0-EBmswzOg1e3LFY4o1
+dbName   = gspsnnxz

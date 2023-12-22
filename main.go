@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
+	"main/src/database"
 	"os"
 	"strconv"
 )
@@ -29,7 +31,32 @@ type Event struct {
 }
 
 func main() {
+	loop := "yes"
+	var err error
+	for loop == "yes" {
+		_, err := database.ConnectionDatabase()
 
+		if err != nil {
+			log.Printf(Red+"%v"+Reset, err)
+			fmt.Printf("Voulez-vous tenter de vous reconnecter : (yes/no)\n")
+			loop = inputString()
+		} else {
+			break
+		}
+	}
+	var choice int
+	for {
+		for {
+			displayMenu()
+			choice, err = inputInt()
+			if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 {
+				log.Printf(Red + "La valeur saisie est incorrecte" + Reset)
+			} else {
+				break
+			}
+		}
+		switchMenu(choice)
+	}
 }
 
 func displayMenu() {
@@ -42,6 +69,7 @@ func displayMenu() {
 	fmt.Println(Cyan + " 5." + Reset + "  Rechercher un événement")
 	fmt.Println(Cyan + " 6." + Reset + "  Quitter")
 	fmt.Println()
+	fmt.Println("entrer votre choix :")
 }
 
 func switchMenu(choice int) {
@@ -63,8 +91,8 @@ func switchMenu(choice int) {
 		fmt.Println("Visualiser les événements")
 		break
 	case 6:
-		fmt.Println("Quitter")
-		break
+		fmt.Println("Aurevoir !")
+		os.Exit(1)
 	default:
 
 	}

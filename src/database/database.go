@@ -50,25 +50,25 @@ func ReadConfig() (string, error) {
 	return configString, nil
 }
 
-func ConnectionDatabase() *sql.DB {
+func ConnectionDatabase() (*sql.DB, error) {
 
 	config, err := ReadConfig()
 	if err != nil {
-		log.Fatalf("Une erreur est survenue lors de la lecture du fichier : %v", err)
+		return nil, fmt.Errorf("une erreur est survenue lors de la lecture du fichier : %v", err)
 	}
 
 	db, err := sql.Open("postgres", config)
 
 	if err != nil {
-		log.Fatal("Une erreur est survenue lors de la connection a la base de données :", err)
+		return nil, fmt.Errorf("une erreur est survenue lors de la connection a la base de données : %v", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		fmt.Printf("erreur lors de la vérification de la connexion à la base de données : %v", err)
+		return nil, fmt.Errorf("erreur lors de la vérification de la connexion à la base de données : %v", err)
 	}
 
-	return db
+	return db, nil
 }
 
 func InitDb(db *sql.DB) {
@@ -88,18 +88,20 @@ func InitDb(db *sql.DB) {
 
 }
 
-func CreateEvent() {
+func CreateEvent() error {
 	var id int
-	db := ConnectionDatabase()
-	req := "INSERT INTO Event (title,startDate,endDate,location,tag) VALUES ($1,$2,$3,$4,$5) RETURNING id"
-	err := db.QueryRow(req, "Alice", "2023-03-11", "2023-03-17", "la", "ici").Scan(&id)
+	db, err := ConnectionDatabase()
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("erreur lors de la connexion à la base de données : %v", err)
 	}
+
+	req := "INSERT INTO Event (title,startDate,endDate,location,tag) VALUES ($1,$2,$3,$4,$5) RETURNING id"
+	err = db.QueryRow(req, "Alice", "2023-03-11", "2023-03-17", "la", "ici").Scan(&id)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("erreur lors de l'insertion des données' : %v", err)
 	}
 	fmt.Printf("%d", id)
+	return nil
 }
 
 func PatchEvent() {}

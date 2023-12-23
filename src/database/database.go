@@ -75,8 +75,8 @@ func InitDb(db *sql.DB) {
 	req := "CREATE TABLE EVENT (" +
 		"id serial PRIMARY KEY," +
 		"title TEXT," +
-		"startDate TEXT," +
-		"endDate TEXT," +
+		"startDate TIMESTAMP," +
+		"endDate TIMESTAMP," +
 		"location TEXT," +
 		"tag TEXT" +
 		");"

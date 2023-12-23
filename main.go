@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
+	"main/src/Event"
 	"main/src/database"
+	"main/src/input"
 	"os"
-	"strconv"
 )
 
 var (
@@ -21,15 +21,6 @@ var (
 	White  = "\033[97m"
 )
 
-type Event struct {
-	title     string
-	startDate string
-	endDate   string
-	time      string
-	location  string
-	tag       string
-}
-
 func main() {
 	loop := "yes"
 	var err error
@@ -39,7 +30,7 @@ func main() {
 		if err != nil {
 			log.Printf(Red+"%v"+Reset, err)
 			fmt.Printf("Voulez-vous tenter de vous reconnecter : (yes/no)\n")
-			loop = inputString()
+			loop = input.InputString()
 		} else {
 			break
 		}
@@ -48,7 +39,7 @@ func main() {
 	for {
 		for {
 			displayMenu()
-			choice, err = inputInt()
+			choice, err = input.InputInt()
 			if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 {
 				log.Printf(Red + "La valeur saisie est incorrecte" + Reset)
 			} else {
@@ -60,6 +51,7 @@ func main() {
 }
 
 func displayMenu() {
+	fmt.Println()
 	fmt.Println(Blue + " Bienvenue dans le Système de gestion de plannings")
 	fmt.Println("--------------------------------------------------" + Reset)
 	fmt.Println(Cyan + " 1." + Reset + "  Créer un nouvel événement")
@@ -76,7 +68,8 @@ func switchMenu(choice int) {
 
 	switch choice {
 	case 1:
-		fmt.Println("Visualiser les événements")
+		fmt.Println("Créer un nouvel événement")
+		fmt.Printf("%+v", Event.AddEvent())
 		break
 	case 2:
 		fmt.Println("Modifier un événement")
@@ -98,14 +91,6 @@ func switchMenu(choice int) {
 	}
 }
 
-func inputInt() (int, error) {
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return strconv.Atoi(scanner.Text())
-}
+//func addEvent() Event.Event {}
 
-func inputString() string {
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return scanner.Text()
-}
+//func writeEvent() Event {}

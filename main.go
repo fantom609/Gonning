@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"runtime"
 	"sort"
+	"time"
 )
 
 var (
@@ -52,13 +53,28 @@ func main() {
 			break
 		}
 	}
+	fmt.Printf("Vous avez %d évenement aujoursd'hui voulez vous les voirs ? (yes/no)", len(upcomingEvents()))
+	for {
+		choice := input.InputString()
+		if choice == "yes" {
+			events := upcomingEvents()
+			displayEvents(events)
+			fmt.Printf("Acces au menu : 1")
+			fmt.Printf("quitter : 2")
+			break
+		}
+		if choice == "no" {
+			break
+		}
+		log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
+	}
 
 	var choice int
 	for {
 		for {
 			displayMenu()
 			choice, err = input.InputInt()
-			if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 {
+			if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 && choice != 7 {
 				log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
 			} else {
 				break
@@ -78,7 +94,8 @@ func displayMenu() {
 	fmt.Println(color.Cyan + " 3." + color.Reset + "  Modifier un événement")
 	fmt.Println(color.Cyan + " 4." + color.Reset + "  Supprimer un événement")
 	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un événement")
-	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
+	fmt.Println(color.Cyan + " 6." + color.Reset + "  Voir les rappels")
+	fmt.Println(color.Cyan + " 7." + color.Reset + "  Quitter")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
@@ -119,7 +136,7 @@ func switchMenu(choice int) {
 		clearScreen()
 		fmt.Println(color.Blue + "\nListe du planning :" + color.Reset)
 
-		displayEvents()
+		displayEvents(eventsMap)
 
 		fmt.Println("Entrez le numéro de l'événement pour voir plus de détails ou 0 pour revenir :")
 		for {
@@ -202,7 +219,7 @@ func clearScreen() {
 	cmd.Run()
 }
 
-func displayEvents() {
+func displayEvents(Events map[int]Event.Event) {
 
 	type kv struct {
 		Key   int
@@ -210,7 +227,7 @@ func displayEvents() {
 	}
 
 	var ss []kv
-	for k, v := range eventsMap {
+	for k, v := range Events {
 		ss = append(ss, kv{k, v})
 	}
 
@@ -255,4 +272,14 @@ func userConnection() int {
 		log.Printf(color.Red+"%v"+color.Reset, err)
 	}
 	return id
+}
+
+func upcomingEvents() map[int]Event.Event {
+	events := make(map[int]Event.Event)
+	for id, event := range eventsMap {
+		if event.StartDate.After(time.Now()) && event.StartDate.Before(time.Now().Add(24*time.Hour)) {
+			events[id] = event
+		}
+	}
+	return events
 }

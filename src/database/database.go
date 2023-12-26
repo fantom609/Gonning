@@ -7,6 +7,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
+	"main/src/Event"
 	"os"
 	"strings"
 )
@@ -102,20 +103,14 @@ func InitDb(db *sql.DB) {
 
 }
 
-func CreateEvent() error {
+func CreateEvent(event *Event.Event, db *sql.DB) (int, error) {
 	var id int
-	db, err := ConnectionDatabase()
+	req := "INSERT INTO Event (title,startdate,enddate,location,tag,description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
+	err := db.QueryRow(req, event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("erreur lors de la connexion à la base de données : %v", err)
+		return 0, fmt.Errorf("erreur lors de l'insertion des données' : %v", err)
 	}
-
-	req := "INSERT INTO Event (title,startDate,endDate,location,tag) VALUES ($1,$2,$3,$4,$5) RETURNING id"
-	err = db.QueryRow(req, "Alice", "2023-03-11", "2023-03-17", "la", "ici").Scan(&id)
-	if err != nil {
-		return fmt.Errorf("erreur lors de l'insertion des données' : %v", err)
-	}
-	fmt.Printf("%d", id)
-	return nil
+	return id, nil
 }
 
 func PatchEvent() {}
@@ -124,4 +119,25 @@ func DeleteEvent() {}
 
 func GetEvent() {}
 
-func GetEvents() {}
+func GetEvents(db *sql.DB) ([]Event.Event, error) {
+
+	var events []Event.Event
+
+	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event"
+	rows, err := db.Query(req)
+	if err != nil {
+		return []Event.Event{}, fmt.Errorf("Erreur lors de la requéte %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event Event.Event
+		err := rows.Scan(&event.Id, &event.Title, &event.StartDate, &event.EndDate, &event.Location, &event.Tag, &event.Description)
+		if err != nil {
+			return []Event.Event{}, err
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
+}

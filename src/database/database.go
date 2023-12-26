@@ -115,7 +115,26 @@ func CreateEvent(event *Event.Event, db *sql.DB) (int, error) {
 
 func PatchEvent() {}
 
-func DeleteEvent() {}
+func DeleteEvent(db *sql.DB, id int) error {
+
+	result, err := db.Exec("DELETE FROM EVENT WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la requete %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("erreur lors de la récupération du nombre de lignes affectées %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("aucun evenement n'a ete supprimé pour l'ID %d", id)
+	}
+
+	fmt.Println("L'evenement a ete supprime")
+
+	return nil
+}
 
 func GetEvent() {}
 
@@ -126,7 +145,7 @@ func GetEvents(db *sql.DB) ([]Event.Event, error) {
 	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event"
 	rows, err := db.Query(req)
 	if err != nil {
-		return []Event.Event{}, fmt.Errorf("Erreur lors de la requéte %v", err)
+		return []Event.Event{}, fmt.Errorf("erreur lors de la requéte %v", err)
 	}
 	defer rows.Close()
 

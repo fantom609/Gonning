@@ -47,7 +47,6 @@ func main() {
 }
 
 func displayMenu() {
-	clearScreen()
 	fmt.Println()
 	fmt.Println(color.Blue + " Bienvenue dans le Système de gestion de plannings")
 	fmt.Println("--------------------------------------------------" + color.Reset)
@@ -57,6 +56,20 @@ func displayMenu() {
 	fmt.Println(color.Cyan + " 4." + color.Reset + "  Supprimer un événement")
 	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un événement")
 	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
+	fmt.Println()
+	fmt.Println("entrer votre choix :")
+}
+
+func displayModification() {
+	fmt.Println()
+	fmt.Println(color.White + "Que souhaitez vous modifiez : ")
+	fmt.Println("--------------------------------------------------" + color.Reset)
+	fmt.Println(color.Red + " 1." + color.Reset + "  pour modifier le titre")
+	fmt.Println(color.Orange + " 2." + color.Reset + "  pour modifier la date de début")
+	fmt.Println(color.Yellow + " 3." + color.Reset + "  pour modifier la date de fin")
+	fmt.Println(color.Green + " 4." + color.Reset + "  pour modifier la localisation")
+	fmt.Println(color.Blue + " 5." + color.Reset + "  pour modifier le tag")
+	fmt.Println(color.Purple + " 6." + color.Reset + "  pour modifier la description")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
@@ -113,11 +126,39 @@ func switchMenu(choice int) {
 	case 3:
 		fmt.Println("Modifier un événement")
 
-		break
-	case 4:
-		fmt.Println("Supprimer un événement")
+		var err error
+		var choice int
+
+		displayModification()
+		choice, err = input.InputInt()
+		if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 {
+			log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
+		}
 
 		break
+	case 4:
+		clearScreen()
+		fmt.Println("Supprimer un événement")
+		var id int
+		var err error
+
+		for {
+			fmt.Println("Id de l'evenement que vous souhaitez supprimer : ")
+			id, err = input.InputInt()
+			if err == nil {
+				break
+			}
+			fmt.Println("Erreur de saisie")
+		}
+
+		err = database.DeleteEvent(db, id)
+
+		if err != nil {
+			log.Printf("%v", err)
+		}
+
+		break
+
 	case 5:
 		fmt.Println("Rechercher un événement")
 		break

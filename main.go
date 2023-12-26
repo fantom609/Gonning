@@ -100,24 +100,56 @@ func switchMenu(choice int) {
 			}
 		}
 	case 2:
-		fmt.Println("Visualiser les événements")
-		events, err := database.GetEvents(db)
+		clearScreen()
+		fmt.Println(color.Blue + "\nListe du planning :" + color.Reset)
+		err := database.GetEvents(db, eventsMap)
 		if err != nil {
 			log.Printf("%v", err)
 		}
 
-		for i := 0; i < len(events); i++ {
-			fmt.Printf("ID: %d\n", events[i].Id)
-			fmt.Printf("Title: %s\n", events[i].Title)
-			fmt.Printf("StartDate: %s\n", events[i].StartDate)
-			fmt.Printf("EndDate: %s\n", events[i].EndDate)
-			fmt.Printf("Location: %s\n", events[i].Location)
-			fmt.Printf("Tag: %s\n", events[i].Tag)
-			fmt.Printf("Description: %s\n", events[i].Description)
+		displayEvents()
 
+		fmt.Println("Entrez le numéro de l'événement pour voir plus de détails ou 0 pour revenir :")
+		var id int
+		for {
+			for {
+				id, err = input.InputInt()
+				if err == nil {
+					break
+				}
+				fmt.Println("Saisi invalide")
+			}
+			if id == 0 {
+				return
+			}
+			err = displayEvent(id)
+			if err == nil {
+				break
+			}
+			fmt.Println("l'id saisi n'existe pas")
 		}
 
-		input.InputString()
+		fmt.Println("\nmodifier l'évenement : 1")
+		fmt.Println("Revenir au menu : 2")
+		fmt.Println("quitter : 3")
+
+		var res int
+		for {
+			res, err = input.InputInt()
+			if err == nil && res != 1 && res != 2 && res != 3 {
+				continue
+			}
+			break
+		}
+		switch res {
+		case 1:
+			// updateEvent
+			break
+		case 2:
+			return
+		case 3:
+			exitRequested = true
+		}
 		break
 	case 3:
 		fmt.Println("Modifier un événement")

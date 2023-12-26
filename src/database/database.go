@@ -143,7 +143,7 @@ func GetEvents(db *sql.DB, events map[int]Event.Event) error {
 	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event"
 	rows, err := db.Query(req)
 	if err != nil {
-		return []Event.Event{}, fmt.Errorf("erreur lors de la requéte %v", err)
+		return fmt.Errorf("erreur lors de la requéte %v", err)
 	}
 	defer rows.Close()
 

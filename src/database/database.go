@@ -72,14 +72,23 @@ func ConnectionDatabase() (*sql.DB, error) {
 }
 
 func InitDb(db *sql.DB) {
-	req := "CREATE TABLE EVENT (" +
+	req := "CREATE TABLE UTILISATEUR (" +
+		"id serial PRIMARY KEY," +
+		"username TEXT," +
+		"password TEXT" +
+		");"
+
+	req += "CREATE TABLE EVENT (" +
 		"id serial PRIMARY KEY," +
 		"title TEXT," +
 		"startDate TIMESTAMP," +
 		"endDate TIMESTAMP," +
 		"location TEXT," +
-		"tag TEXT" +
+		"tag TEXT," +
+		"description TEXT," +
+		"id_utilisateur INTEGER REFERENCES UTILISATEUR(id) ON DELETE CASCADE" +
 		");"
+
 	_, err := db.Exec(req)
 
 	if err != nil {

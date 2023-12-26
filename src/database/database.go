@@ -136,12 +136,10 @@ func DeleteEvent(db *sql.DB, id int) error {
 	return nil
 }
 
-func GetEvent() {}
+func GetEvents(db *sql.DB, events map[int]Event.Event, userId int) error {
 
-func GetEvents(db *sql.DB, events map[int]Event.Event) error {
-
-	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event"
-	rows, err := db.Query(req)
+	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event WHERE id_utilisateur = $1"
+	rows, err := db.Query(req, userId)
 	if err != nil {
 		return fmt.Errorf("erreur lors de la requéte %v", err)
 	}

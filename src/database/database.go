@@ -160,3 +160,13 @@ func GetEvents(db *sql.DB) ([]Event.Event, error) {
 
 	return events, nil
 }
+
+func ConnectUser(db *sql.DB, username string, password string) (int, error) {
+	var userId int
+	req := "SELECT id FROM utilisateur WHERE username = $1 AND password = $2"
+	err := db.QueryRow(req, username, password).Scan(&userId)
+	if err != nil {
+		return 0, fmt.Errorf("nom d'utilisateur ou mot de passe incorrecte")
+	}
+	return userId, nil
+}

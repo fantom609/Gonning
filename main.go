@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"main/src/Event"
@@ -11,10 +12,13 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 )
 
 var (
-	db *sql.DB
+	db        *sql.DB
+	eventsMap = make(map[int]Event.Event)
+	userId    int
 )
 
 func main() {
@@ -28,6 +32,12 @@ func main() {
 			fmt.Printf("Voulez-vous tenter de vous reconnecter : (yes/no)\n")
 			loop = input.InputString()
 		} else {
+			break
+		}
+	}
+	for {
+		userId = userConnection()
+		if userId != 0 {
 			break
 		}
 	}
@@ -62,7 +72,7 @@ func displayMenu() {
 }
 
 func switchMenu(choice int) {
-
+	var exitRequested bool
 	switch choice {
 	case 1:
 		for {
@@ -89,7 +99,6 @@ func switchMenu(choice int) {
 				}
 			}
 		}
-
 	case 2:
 		fmt.Println("Visualiser les événements")
 		events, err := database.GetEvents(db)
@@ -122,10 +131,14 @@ func switchMenu(choice int) {
 		fmt.Println("Rechercher un événement")
 		break
 	case 6:
-		fmt.Println("Aurevoir !")
-		os.Exit(1)
+		exitRequested = true
 	default:
 
+	}
+	if exitRequested {
+		db.Close()
+		fmt.Println("Aurevoir !")
+		os.Exit(1)
 	}
 }
 
@@ -148,4 +161,59 @@ func clearScreen() {
 
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+func displayEvents() {
+
+	type kv struct {
+		Key   int
+		Value Event.Event
+	}
+
+	var ss []kv
+	for k, v := range eventsMap {
+		ss = append(ss, kv{k, v})
+	}
+
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[j].Value.StartDate.After(ss[i].Value.StartDate)
+	})
+
+	for _, event := range ss {
+		fmt.Printf(color.Cyan+" %d."+color.Reset+" %s - %s - %s\n", event.Key, event.Value.Title, event.Value.StartDate.Format("2006-01-02 15:04"), event.Value.Tag)
+	}
+
+}
+
+func displayEvent(id int) error {
+
+	event, existe := eventsMap[id]
+	if !existe {
+		return errors.New("clé incorrecte")
+	}
+
+	clearScreen()
+	fmt.Printf(color.Blue+"%s\n"+color.Reset, event.Title)
+	fmt.Printf("Débute a    : %s\n", event.StartDate.Format("2006-01-02 15:04"))
+	fmt.Printf("Termine a   : %s\n", event.EndDate.Format("2006-01-02 15:04"))
+	fmt.Printf("durée       : %s\n", event.EndDate.Sub(event.StartDate))
+	fmt.Printf("Tag         : %s\n", event.Tag)
+	fmt.Printf("description : %s\n", event.Description)
+
+	return nil
+}
+
+func userConnection() int {
+
+	fmt.Println("saisisez votre identifiant")
+	username := input.InputString()
+
+	fmt.Println("saisisez votre mot de passe")
+	password := input.InputString()
+
+	id, err := database.ConnectUser(db, username, password)
+	if err != nil {
+		log.Printf(color.Red+"%v"+color.Reset, err)
+	}
+	return id
 }

@@ -119,14 +119,12 @@ func DeleteEvent() {}
 
 func GetEvent() {}
 
-func GetEvents(db *sql.DB) ([]Event.Event, error) {
-
-	var events []Event.Event
+func GetEvents(db *sql.DB, events map[int]Event.Event) error {
 
 	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event"
 	rows, err := db.Query(req)
 	if err != nil {
-		return []Event.Event{}, fmt.Errorf("Erreur lors de la requéte %v", err)
+		return fmt.Errorf("Erreur lors de la requéte %v", err)
 	}
 	defer rows.Close()
 
@@ -134,10 +132,10 @@ func GetEvents(db *sql.DB) ([]Event.Event, error) {
 		var event Event.Event
 		err := rows.Scan(&event.Id, &event.Title, &event.StartDate, &event.EndDate, &event.Location, &event.Tag, &event.Description)
 		if err != nil {
-			return []Event.Event{}, err
+			return err
 		}
-		events = append(events, event)
+		events[event.Id] = event
 	}
 
-	return events, nil
+	return nil
 }

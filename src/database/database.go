@@ -89,6 +89,11 @@ func InitDb(db *sql.DB) {
 		"id_utilisateur INTEGER REFERENCES UTILISATEUR(id) ON DELETE CASCADE" +
 		");"
 
+	req += "INSERT INTO UTILISATEUR (username, password) VALUES " +
+		"('Noe', 'Noe')," +
+		"('Arthur', 'Arthur')," +
+		"('Nicolas', 'Nicolas')," +
+		"('Lena', 'Lena');"
 	_, err := db.Exec(req)
 
 	if err != nil {

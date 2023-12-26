@@ -41,6 +41,18 @@ func main() {
 			break
 		}
 	}
+	loop = "yes"
+	for loop == "yes" {
+		err = database.GetEvents(db, eventsMap, userId)
+		if err != nil {
+			log.Printf(color.Red+"%v"+color.Reset, err)
+			fmt.Printf("Voulez-vous tenter de re récupérer les données ? : (yes/no)\n")
+			loop = input.InputString()
+		} else {
+			break
+		}
+	}
+
 	var choice int
 	for {
 		for {
@@ -100,17 +112,16 @@ func switchMenu(choice int) {
 			}
 		}
 	case 2:
+
+		var id int
+		var err error
+
 		clearScreen()
 		fmt.Println(color.Blue + "\nListe du planning :" + color.Reset)
-		err := database.GetEvents(db, eventsMap)
-		if err != nil {
-			log.Printf("%v", err)
-		}
 
 		displayEvents()
 
 		fmt.Println("Entrez le numéro de l'événement pour voir plus de détails ou 0 pour revenir :")
-		var id int
 		for {
 			for {
 				id, err = input.InputInt()
@@ -173,10 +184,6 @@ func switchMenu(choice int) {
 		os.Exit(1)
 	}
 }
-
-//func addEvent() Event.Event {}
-
-//func writeEvent() Event {}
 
 func clearScreen() {
 	var cmd *exec.Cmd

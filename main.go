@@ -23,55 +23,28 @@ var (
 )
 
 func main() {
-	loop := "yes"
+	exitRequested := false
 	var err error
-	for loop == "yes" {
-		db, err = database.ConnectionDatabase()
-
-		if err != nil {
-			log.Printf(color.Red+"%v"+color.Reset, err)
-			fmt.Printf("Voulez-vous tenter de vous reconnecter : (yes/no)\n")
-			loop = input.InputString()
-		} else {
-			break
-		}
-	}
+	loopConnexionDb() // connection a la base de données
 	for {
 		userId = userConnection()
 		if userId != 0 {
 			break
 		}
-	}
-	loop = "yes"
-	for loop == "yes" {
-		err = database.GetEvents(db, eventsMap, userId)
-		if err != nil {
-			log.Printf(color.Red+"%v"+color.Reset, err)
-			fmt.Printf("Voulez-vous tenter de re récupérer les données ? : (yes/no)\n")
-			loop = input.InputString()
-		} else {
-			break
-		}
-	}
-	fmt.Printf("Vous avez %d évenement aujoursd'hui voulez vous les voirs ? (yes/no)", len(upcomingEvents()))
-	for {
-		choice := input.InputString()
-		if choice == "yes" {
-			events := upcomingEvents()
-			displayEvents(events)
-			fmt.Printf("Acces au menu : 1")
-			fmt.Printf("quitter : 2")
-			break
-		}
-		if choice == "no" {
-			break
-		}
-		log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
-	}
+	} // Connexion de l'utilisateur
 
+	loopGetEvents() // récupération des événements de l'utilisateur connecté
+
+	if len(upcomingEvents()) > 0 {
+		fmt.Printf("Vous avez"+color.Orange+" %d "+color.Reset+"évenement aujoursd'hui voulez vous les voirs ? (yes/no)", len(upcomingEvents()))
+		exitRequested = loopUpComingEvents()
+	} // Affichage des événements jounaliés s'il y en a
 	var choice int
+	if exitRequested == true {
+		choice = 6
+	}
 	for {
-		for {
+		for exitRequested == false {
 			displayMenu()
 			choice, err = input.InputInt()
 			if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 && choice != 7 {
@@ -84,6 +57,10 @@ func main() {
 	}
 }
 
+// fonction liée au menu à et l'affichage
+/*
+Cette fonction permet d'afficher le menu
+*/
 func displayMenu() {
 	fmt.Println()
 	fmt.Println(color.Blue + " Bienvenue dans le Système de gestion de plannings")
@@ -93,26 +70,14 @@ func displayMenu() {
 	fmt.Println(color.Cyan + " 3." + color.Reset + "  Modifier un événement")
 	fmt.Println(color.Cyan + " 4." + color.Reset + "  Supprimer un événement")
 	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un événement")
-	fmt.Println(color.Cyan + " 6." + color.Reset + "  Voir les rappels")
-	fmt.Println(color.Cyan + " 7." + color.Reset + "  Quitter")
+	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
 
-func displayModification() {
-	fmt.Println()
-	fmt.Println(color.White + "Que souhaitez vous modifiez : ")
-	fmt.Println("--------------------------------------------------" + color.Reset)
-	fmt.Println(color.Red + " 1." + color.Reset + "  pour modifier le titre")
-	fmt.Println(color.Orange + " 2." + color.Reset + "  pour modifier la date de début")
-	fmt.Println(color.Yellow + " 3." + color.Reset + "  pour modifier la date de fin")
-	fmt.Println(color.Green + " 4." + color.Reset + "  pour modifier la localisation")
-	fmt.Println(color.Blue + " 5." + color.Reset + "  pour modifier le tag")
-	fmt.Println(color.Purple + " 6." + color.Reset + "  pour modifier la description")
-	fmt.Println()
-	fmt.Println("entrer votre choix :")
-}
-
+/*
+Cette fonction permet d'effectuer les traitements souhaités par l'utilisateur
+*/
 func switchMenu(choice int) {
 	var exitRequested bool
 	switch choice {
@@ -243,6 +208,9 @@ func switchMenu(choice int) {
 	}
 }
 
+/*
+Cette fonction permet de clear le terminal
+*/
 func clearScreen() {
 	var cmd *exec.Cmd
 
@@ -260,6 +228,9 @@ func clearScreen() {
 	cmd.Run()
 }
 
+/*
+Cette fonction permet d'afficher une liste d'événements trier par date
+*/
 func displayEvents(Events map[int]Event.Event) {
 
 	type kv struct {
@@ -282,6 +253,9 @@ func displayEvents(Events map[int]Event.Event) {
 
 }
 
+/*
+Cette fonction permet d'afficher les détails d'un événement
+*/
 func displayEvent(id int) error {
 
 	event, existe := eventsMap[id]
@@ -300,6 +274,23 @@ func displayEvent(id int) error {
 	return nil
 }
 
+func displayModification() {
+	fmt.Println()
+	fmt.Println(color.White + "Que souhaitez vous modifiez : ")
+	fmt.Println("--------------------------------------------------" + color.Reset)
+	fmt.Println(color.Red + " 1." + color.Reset + "  pour modifier le titre")
+	fmt.Println(color.Orange + " 2." + color.Reset + "  pour modifier la date de début")
+	fmt.Println(color.Yellow + " 3." + color.Reset + "  pour modifier la date de fin")
+	fmt.Println(color.Green + " 4." + color.Reset + "  pour modifier la localisation")
+	fmt.Println(color.Blue + " 5." + color.Reset + "  pour modifier le tag")
+	fmt.Println(color.Purple + " 6." + color.Reset + "  pour modifier la description")
+	fmt.Println()
+	fmt.Println("entrer votre choix :")
+}
+
+/*
+Cette fonction permet de récupérer l'id de l'utilisateur avec son username et son password
+*/
 func userConnection() int {
 
 	fmt.Println("saisisez votre identifiant")
@@ -315,6 +306,9 @@ func userConnection() int {
 	return id
 }
 
+/*
+Cette fonction permet de récupérer les événements qui vont commencer dans les prochaines 24h et de les renvoyer
+*/
 func upcomingEvents() map[int]Event.Event {
 	events := make(map[int]Event.Event)
 	for id, event := range eventsMap {
@@ -323,4 +317,79 @@ func upcomingEvents() map[int]Event.Event {
 		}
 	}
 	return events
+}
+
+/*
+Cette fonction permet d'établir la connexion avec la base de données
+et de réitérer ma requête si une erreur s'est produite
+*/
+func loopConnexionDb() {
+	loop := "yes"
+	var err error
+	for loop == "yes" {
+		db, err = database.ConnectionDatabase()
+		if err != nil {
+			log.Printf(color.Red+"%v"+color.Reset, err)
+			fmt.Printf("Voulez-vous tenter de vous reconnecter : (yes/no)\n")
+			loop = input.InputString()
+		} else {
+			break
+		}
+	}
+	return
+}
+
+/*
+Cette fonction permet la récupération de tous les événements liée à l'utilisateur connecter
+elle permet de réitérer la requête  si une erreur s'est produite
+*/
+func loopGetEvents() {
+	loop := "yes"
+	for loop == "yes" {
+		err := database.GetEvents(db, eventsMap, userId)
+		if err != nil {
+			log.Printf(color.Red+"%v"+color.Reset, err)
+			fmt.Printf("Voulez-vous tenter de re récupérer les données ? : (yes/no)\n")
+			loop = input.InputString()
+		} else {
+			break
+		}
+	}
+	return
+}
+
+/*
+Cette fonction permet la récupération des événements journaliers
+elle gère les erreurs de saisie de l'utilisateur et renvoie exitRequested à true
+si l'utilisateur souhaite quitter le programme
+*/
+func loopUpComingEvents() bool {
+	exitRequested := false
+	for {
+		choice := input.InputString()
+		if choice == "yes" {
+			events := upcomingEvents()
+			displayEvents(events)
+			fmt.Println("Acces au menu : 1")
+			fmt.Println("quitter : 2")
+			for {
+				res, err := input.InputInt()
+				if err != nil || res != 1 && res != 2 {
+					log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
+					continue
+				}
+				if res == 2 {
+					exitRequested = true
+				}
+				break
+			}
+			break
+		}
+		if choice == "no" {
+			break
+		}
+		log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
+		break
+	}
+	return exitRequested
 }

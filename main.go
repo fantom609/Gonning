@@ -165,23 +165,28 @@ func switchMenu(choice int) {
 				log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
 			}
 
-			event, existe := eventsMap[id]
-			if !existe {
-				errors.New("clé incorrecte")
-			}
+			event := eventsMap[id]
 
+			//Switch qui permet de récuperer les champs que l'utilisateur veut modifier
+			//Il prend en parametres la saisie du dessus et l'adresse de la struct Event get auparavant
 			Event.UpdateChoices(&event, choice)
+
+			//Requete SQL pour effectuer la modification
+			err = database.PatchEvent(&event, db)
+
+			if err != nil {
+				log.Printf("%v", err)
+			}
 
 			break
 		case 2:
-
 			return
 		case 3:
 			exitRequested = true
 		}
 		break
 	case 3:
-
+		//Va check dans le case 1 du GET
 		break
 	case 4:
 		clearScreen()

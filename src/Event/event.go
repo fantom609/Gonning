@@ -111,29 +111,27 @@ func UpdateChoices(Event *Event, choices int) {
 			break
 
 		case 2:
-			fmt.Print("Nouvelle date de debut : ")
-			err = nil
 
-			for err != nil {
+			for {
+				fmt.Print("Nouvelle date de debut : ")
 				StartDateString := input.InputString()
 				Event.StartDate, err = valideDate(StartDateString)
 				if err == nil {
-					fmt.Println("Le format de la date n'est pas valide")
+					break
 				}
+				fmt.Println("Le format de la date n'est pas valide")
 			}
 			break
 
 		case 3:
-			fmt.Print("Nouvelle date de fin :")
-
-			err = nil
-
-			for err != nil {
+			for {
+				fmt.Print("Nouvelle date de fin :")
 				EndDateString := input.InputString()
 				Event.EndDate, err = valideDate(EndDateString)
 				if err == nil {
-					fmt.Println("Le format de la date n'est pas valide")
+					break
 				}
+				fmt.Println("Le format de la date n'est pas valide")
 			}
 			break
 

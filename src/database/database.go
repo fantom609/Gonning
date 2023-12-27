@@ -115,7 +115,7 @@ func CreateEvent(event *Event.Event, db *sql.DB) (int, error) {
 
 func PatchEvent(event *Event.Event, db *sql.DB) error {
 	_, err := db.Exec("UPDATE EVENT SET title = $1, startdate = $2, enddate = $3, location = $4, tag = $5, description = $6 WHERE id = $7",
-		event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description)
+		event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description, event.Id)
 	if err != nil {
 		return fmt.Errorf("erreur lors de la requête UPDATE : %v", err)
 	}

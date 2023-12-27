@@ -97,6 +97,70 @@ func confirmEvent(event *Event) bool {
 	}
 }
 
+func UpdateChoices(Event *Event, choices int) {
+
+	var err error
+
+	for choices%10 != 0 {
+
+		choice := choices % 10
+		switch choice {
+		case 1:
+			fmt.Print("Nouveau titre :")
+			Event.Title = input.InputString()
+			break
+
+		case 2:
+			fmt.Print("Nouvelle date de debut : ")
+			err = nil
+
+			for err != nil {
+				StartDateString := input.InputString()
+				Event.StartDate, err = valideDate(StartDateString)
+				if err == nil {
+					fmt.Println("Le format de la date n'est pas valide")
+				}
+			}
+			break
+
+		case 3:
+			fmt.Print("Nouvelle date de fin :")
+
+			err = nil
+
+			for err != nil {
+				EndDateString := input.InputString()
+				Event.EndDate, err = valideDate(EndDateString)
+				if err == nil {
+					fmt.Println("Le format de la date n'est pas valide")
+				}
+			}
+			break
+
+		case 4:
+			fmt.Print("Nouvelle localisation :")
+			Event.Location = input.InputString()
+			break
+
+		case 5:
+			fmt.Print("Nouveau Tag :")
+			Event.Tag = input.InputString()
+			break
+
+		case 6:
+			fmt.Print("Nouvelle description :")
+			Event.Description = input.InputString()
+			break
+
+		default:
+			fmt.Errorf("erreur de saisie, le champ n %d n'existe pas", choice)
+			break
+		}
+
+		choices /= 10
+	}
+}
+
 func GetEvents(db *sql.DB) []Event {
 	return []Event{}
 }

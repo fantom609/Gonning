@@ -149,25 +149,38 @@ func switchMenu(choice int) {
 		}
 		switch res {
 		case 1:
-			// updateEvent
+
+			fmt.Println("Modifier un événement")
+
+			var err error
+			var choice int
+
+			//Ceci affiche le menu de ce qui est modifiable
+			//Pour modifier un/des champs il suffit d'entrer les chiffres associés aux choses modifiables
+			// ex : 1 ou 145 ou 23
+			displayModification()
+
+			choice, err = input.InputInt()
+			if err != nil {
+				log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
+			}
+
+			event, existe := eventsMap[id]
+			if !existe {
+				errors.New("clé incorrecte")
+			}
+
+			Event.UpdateChoices(&event, choice)
+
 			break
 		case 2:
+
 			return
 		case 3:
 			exitRequested = true
 		}
 		break
 	case 3:
-		fmt.Println("Modifier un événement")
-
-		var err error
-		var choice int
-
-		displayModification()
-		choice, err = input.InputInt()
-		if err != nil || choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 {
-			log.Printf(color.Red + "La valeur saisie est incorrecte" + color.Reset)
-		}
 
 		break
 	case 4:
@@ -270,7 +283,6 @@ func displayEvent(id int) error {
 	fmt.Printf("durée       : %s\n", event.EndDate.Sub(event.StartDate))
 	fmt.Printf("Tag         : %s\n", event.Tag)
 	fmt.Printf("description : %s\n", event.Description)
-
 	return nil
 }
 

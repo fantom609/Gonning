@@ -113,7 +113,16 @@ func CreateEvent(event *Event.Event, db *sql.DB) (int, error) {
 	return id, nil
 }
 
-func PatchEvent() {}
+func PatchEvent(event *Event.Event, db *sql.DB) error {
+	_, err := db.Exec("UPDATE EVENT SET title = $1, startdate = $2, enddate = $3, location = $4, tag = $5, description = $6 WHERE id = $7",
+		event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la requête UPDATE : %v", err)
+	}
+
+	fmt.Println("L'evenement est modifié!")
+	return nil
+}
 
 func DeleteEvent(db *sql.DB, id int) error {
 

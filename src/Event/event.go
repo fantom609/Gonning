@@ -26,26 +26,32 @@ func CreateEvent() (*Event, error) {
 
 	fmt.Print("Entrez le titre de l'événement: ")
 	event.Title = input.InputString()
-
 	for {
-		fmt.Print("Entrez la date de début (YYYY-MM-DD hh:mm): ")
-		startDateString := input.InputString()
+		for {
+			fmt.Print("Entrez la date de début (YYYY-MM-DD hh:mm): ")
+			startDateString := input.InputString()
 
-		event.StartDate, err = valideDate(startDateString)
-		if err == nil {
-			break
+			event.StartDate, err = valideDate(startDateString)
+			if err == nil {
+				break
+			}
+			fmt.Println("Le format de la date n'est pas valide")
 		}
-		fmt.Println("Le format de la date n'est pas valide")
-	}
-	for {
-		fmt.Print("Entrez la date de fin (YYYY-MM-DD): ")
-		EndDateString := input.InputString()
+		for {
+			fmt.Print("Entrez la date de fin (YYYY-MM-DD): ")
+			EndDateString := input.InputString()
 
-		event.EndDate, err = valideDate(EndDateString)
-		if err == nil {
-			break
+			event.EndDate, err = valideDate(EndDateString)
+			if err == nil {
+				break
+			}
+			fmt.Println("Le format de la date n'est pas valide")
 		}
-		fmt.Println("Le format de la date n'est pas valide")
+		if event.StartDate.After(event.EndDate) {
+			fmt.Println("La date début ne peut pas être après la date de fin")
+			continue
+		}
+		break
 	}
 
 	fmt.Print("Entrez le lieu: ")
@@ -78,14 +84,14 @@ func valideDate(dateString string) (time.Time, error) {
 func confirmEvent(event *Event) bool {
 
 	fmt.Printf("\nTitre de l'événement:"+color.Blue+" %s"+color.Reset, event.Title)
-	fmt.Printf("\nDate de début:"+color.Blue+" %s"+color.Reset, event.StartDate.Format("2006-01-02 15:04"))
-	fmt.Printf("\nDate de fin:"+color.Blue+" %s"+color.Reset, event.EndDate.Format("2006-01-02 15:04"))
-	fmt.Printf("\nLieu:"+color.Blue+" %s"+color.Reset, event.Location)
-	fmt.Printf("\nCatégorie:"+color.Blue+" %s"+color.Reset, event.Tag)
-	fmt.Printf("\nDescription:"+color.Blue+" %s\n"+color.Reset, event.Description)
+	fmt.Printf("\nDate de début       :"+color.Blue+" %s"+color.Reset, event.StartDate.Format("2006-01-02 15:04"))
+	fmt.Printf("\nDate de fin         :"+color.Blue+" %s"+color.Reset, event.EndDate.Format("2006-01-02 15:04"))
+	fmt.Printf("\nLieu                :"+color.Blue+" %s"+color.Reset, event.Location)
+	fmt.Printf("\nCatégorie           :"+color.Blue+" %s"+color.Reset, event.Tag)
+	fmt.Printf("\nDescription        :"+color.Blue+" %s\n"+color.Reset, event.Description)
 
 	for {
-		fmt.Println("\ninformation correct ?")
+		fmt.Println("\ninformation correct ? (yes/no)")
 		res := input.InputString()
 		if res == "yes" {
 			return true

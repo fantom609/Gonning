@@ -62,6 +62,7 @@ func main() {
 Cette fonction permet d'afficher le menu
 */
 func displayMenu() {
+	clearScreen()
 	fmt.Println()
 	fmt.Println(color.Blue + " Bienvenue dans le Système de gestion de plannings")
 	fmt.Println("--------------------------------------------------" + color.Reset)
@@ -89,11 +90,12 @@ func switchMenu(choice int) {
 				log.Printf("%v", err)
 			}
 			var id int
-			id, err = database.CreateEvent(event, db)
+			id, err = database.CreateEvent(event, db, userId)
 			if err != nil {
 				log.Printf("%v", err)
 			}
 			event.Id = id
+			eventsMap[event.Id] = *event
 			var res string
 			for res != "yes" && res != "no" {
 				fmt.Println("Voulez vous saisir un autre evennement ? (yes/no)")
@@ -105,6 +107,7 @@ func switchMenu(choice int) {
 					break
 				}
 			}
+			break
 		}
 	case 2:
 

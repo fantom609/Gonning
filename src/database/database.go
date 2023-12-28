@@ -103,10 +103,10 @@ func InitDb(db *sql.DB) {
 
 }
 
-func CreateEvent(event *Event.Event, db *sql.DB) (int, error) {
+func CreateEvent(event *Event.Event, db *sql.DB, userId int) (int, error) {
 	var id int
-	req := "INSERT INTO Event (title,startdate,enddate,location,tag,description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
-	err := db.QueryRow(req, event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description).Scan(&id)
+	req := "INSERT INTO Event (title,startdate,enddate,location,tag,description,id_utilisateur) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id"
+	err := db.QueryRow(req, event.Title, event.StartDate, event.EndDate, event.Location, event.Tag, event.Description, userId).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("erreur lors de l'insertion des données' : %v", err)
 	}

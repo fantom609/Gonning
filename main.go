@@ -139,13 +139,15 @@ func switchMenu(choice int) {
 		}
 
 		fmt.Println("\nmodifier l'évenement : 1")
-		fmt.Println("Revenir au menu : 2")
-		fmt.Println("quitter : 3")
+		fmt.Println("supprimer l'évenement : 2")
+		fmt.Println("Revenir au menu : 3")
+		fmt.Println("quitter : 4")
 
 		var res int
 		for {
 			res, err = input.InputInt()
-			if err == nil && res != 1 && res != 2 && res != 3 {
+			if err != nil || res != 1 && res != 2 && res != 3 && res != 4 {
+				fmt.Println("Saisi invalide")
 				continue
 			}
 			break
@@ -183,8 +185,14 @@ func switchMenu(choice int) {
 
 			break
 		case 2:
+			err = deleteEvent(id)
+			if err != nil {
+				log.Printf("%v", err)
+			}
 			return
 		case 3:
+			return
+		case 4:
 			exitRequested = true
 		}
 		break
@@ -206,7 +214,7 @@ func switchMenu(choice int) {
 			fmt.Println("Erreur de saisie")
 		}
 
-		err = database.DeleteEvent(db, id)
+		err = deleteEvent(id)
 
 		if err != nil {
 			log.Printf("%v", err)
@@ -412,4 +420,13 @@ func loopUpComingEvents() bool {
 		break
 	}
 	return exitRequested
+}
+
+func deleteEvent(id int) error {
+	err := database.DeleteEvent(db, id)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+	delete(eventsMap, id)
+	return nil
 }

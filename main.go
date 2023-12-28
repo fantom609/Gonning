@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"main/src/Event"
@@ -20,11 +21,10 @@ var (
 	db            *sql.DB
 	eventsMap     = make(map[int]Event.Event)
 	userId        int
-	exitRequested bool
+	exitRequested = false
 )
 
 func main() {
-	exitRequested := false
 	var err error
 	loopConnexionDb() // connection a la base de données
 	for {
@@ -68,8 +68,9 @@ func displayMenu() {
 	fmt.Println("--------------------------------------------------" + color.Reset)
 	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel événement")
 	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les événements")
-	fmt.Println(color.Cyan + " 3." + color.Reset + "  Rechercher un événement")
-	fmt.Println(color.Cyan + " 4." + color.Reset + "  Quitter")
+	fmt.Println(color.Cyan + " 3." + color.Reset + "  Visualiser un événement par l'id")
+	fmt.Println(color.Cyan + " 4." + color.Reset + "  Rechercher un événement")
+	fmt.Println(color.Cyan + " 5." + color.Reset + "  Quitter")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
@@ -88,6 +89,29 @@ func switchMenu(choice int) {
 		break
 	case 3:
 		clearScreen()
+		var id int
+		var err error
+		fmt.Println("saisier l'id ou 0 pour quitter")
+		for {
+			for {
+				id, err = input.InputInt()
+				if err == nil {
+					break
+				}
+				fmt.Println("Saisi invalide")
+			}
+			if id == 0 {
+				return
+			}
+			err = getEvent(id)
+			if err != nil {
+				log.Printf("%v", err)
+				continue
+			}
+			break
+		}
+	case 4:
+		clearScreen()
 		fmt.Println("Votre recherche ?")
 		tag := input.InputString()
 		events := searchEvent(tag)
@@ -95,7 +119,7 @@ func switchMenu(choice int) {
 		fmt.Println("Appuier sur une touche pour retourner au menu")
 		input.InputString()
 		break
-	case 4:
+	case 5:
 		exitRequested = true
 	}
 	if exitRequested {
@@ -278,13 +302,12 @@ elle gère les erreurs de saisie de l'utilisateur et renvoie exitRequested à tr
 si l'utilisateur souhaite quitter le programme
 */
 func loopUpComingEvents() bool {
-	exitRequested := false
 	for {
 		choice := input.InputString()
 		if choice == "yes" {
 			events := upcomingEvents()
 			displayEvents(events)
-			fmt.Println("Acces au menu : 1")
+			fmt.Println("\nAcces au menu : 1")
 			fmt.Println("quitter : 2")
 			for {
 				res, err := input.InputInt()
@@ -365,6 +388,55 @@ func createEvent() {
 	}
 }
 
+func getEvent(id int) error {
+	var err error
+	_, existe := eventsMap[id]
+	if !existe {
+		return errors.New("L'id saisie n'existe pas")
+	}
+	displayEvent(eventsMap[id])
+
+	fmt.Println("\nmodifier l'évenement : 1")
+	fmt.Println("supprimer l'évenement : 2")
+	fmt.Println("Revenir au menu : 3")
+	fmt.Println("quitter : 4")
+
+	var res int
+	for {
+		res, err = input.InputInt()
+		if err != nil || res != 1 && res != 2 && res != 3 && res != 4 {
+			fmt.Println("Saisi invalide")
+			continue
+		}
+		break
+	}
+	switch res {
+	case 1:
+		updateEvent(id)
+		break
+	case 2:
+		for {
+			fmt.Println(color.Red + "étes vous sur de vouloir supprimer l'évenement ? (yes/no)" + color.Reset)
+			conf := input.InputString()
+			if conf != "yes" && conf != "no" {
+				fmt.Println("Saisi invalide")
+				continue
+			}
+			if conf == "yes" {
+				deleteEvent(id)
+			}
+			break
+		}
+		break
+	case 3:
+		break
+	case 4:
+		exitRequested = true
+	}
+
+	return nil
+}
+
 func getEvents() {
 
 	var id int
@@ -386,41 +458,14 @@ func getEvents() {
 		if id == 0 {
 			return
 		}
-		_, existe := eventsMap[id]
-		if !existe {
-			fmt.Println("L'id saisie n'existe pas")
-			continue
-		}
-		displayEvent(eventsMap[id])
-		break
-	}
-
-	fmt.Println("\nmodifier l'évenement : 1")
-	fmt.Println("supprimer l'évenement : 2")
-	fmt.Println("Revenir au menu : 3")
-	fmt.Println("quitter : 4")
-
-	var res int
-	for {
-		res, err = input.InputInt()
-		if err != nil || res != 1 && res != 2 && res != 3 && res != 4 {
-			fmt.Println("Saisi invalide")
+		err = getEvent(id)
+		if err != nil {
+			log.Printf("%v", err)
 			continue
 		}
 		break
 	}
-	switch res {
-	case 1:
-		updateEvent(id)
-		break
-	case 2:
-		deleteEvent(id)
-		break
-	case 3:
-		break
-	case 4:
-		exitRequested = true
-	}
+
 	return
 }
 

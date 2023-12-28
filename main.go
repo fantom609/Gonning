@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -68,7 +69,7 @@ func displayMenu() {
 	fmt.Println("--------------------------------------------------" + color.Reset)
 	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel événement")
 	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les événements")
-	fmt.Println(color.Cyan + " 3." + color.Reset + "  Modifier un événement")
+	fmt.Println(color.Cyan + " 3." + color.Reset + "  Enregistrer les evenements")
 	fmt.Println(color.Cyan + " 4." + color.Reset + "  Supprimer un événement")
 	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un événement")
 	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
@@ -197,7 +198,11 @@ func switchMenu(choice int) {
 		}
 		break
 	case 3:
-		//Va check dans le case 1 du GET
+		fmt.Println("Enregistrer les evenements")
+		err := jsonEvents(&eventsMap)
+		if err == nil {
+			fmt.Print("Le fichier a ete cree avec succes !")
+		}
 		break
 	case 4:
 		clearScreen()
@@ -428,5 +433,25 @@ func deleteEvent(id int) error {
 		return fmt.Errorf("%v", err)
 	}
 	delete(eventsMap, id)
+	return nil
+}
+
+func jsonEvents(events *map[int]Event.Event) error {
+
+	jsonData, err := json.MarshalIndent(events, "", "  ")
+	if err != nil {
+		return fmt.Errorf("erreur lors de la conversion en JSON")
+	}
+
+	file, err := os.Create("events.json")
+	if err != nil {
+		return fmt.Errorf("erreur lors de la creation du fichier")
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'ecriture dans le fichier")
+	}
 	return nil
 }

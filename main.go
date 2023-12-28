@@ -58,7 +58,6 @@ func main() {
 	}
 }
 
-// fonction liée au menu à et l'affichage
 /*
 Cette fonction permet d'afficher le menu
 */
@@ -100,8 +99,9 @@ func switchMenu(choice int) {
 		exitRequested = true
 	}
 	if exitRequested {
+		clearScreen()
 		db.Close()
-		fmt.Println("Aurevoir !")
+		fmt.Println(color.Orange + "Aurevoir !" + color.Reset)
 		os.Exit(1)
 	}
 }
@@ -169,7 +169,7 @@ func displayEvents(Events map[int]Event.Event) {
 	})
 
 	for _, event := range ss {
-		fmt.Printf(color.Cyan+" %d."+color.Reset+" %s - %s - %s\n", event.Key, event.Value.Title, event.Value.StartDate.Format("2006-01-02 15:04"), event.Value.Tag)
+		fmt.Printf(color.Cyan+" %d."+color.Reset+" %s - %s - %s - %s\n", event.Key, event.Value.Title, event.Value.StartDate.Format("2006-01-02 15:04"), event.Value.Tag, event.Value.Location)
 	}
 }
 

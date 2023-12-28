@@ -38,7 +38,7 @@ func CreateEvent() (*Event, error) {
 			fmt.Println("Le format de la date n'est pas valide")
 		}
 		for {
-			fmt.Print("Entrez la date de fin (YYYY-MM-DD): ")
+			fmt.Print("Entrez la date de fin (YYYY-MM-DD hh:mm): ")
 			EndDateString := input.InputString()
 
 			event.EndDate, err = valideDate(EndDateString)
@@ -62,10 +62,7 @@ func CreateEvent() (*Event, error) {
 
 	fmt.Print("Entrez une brève description: ")
 	event.Description = input.InputString()
-	res := confirmEvent(event)
-	if !res {
-		// a finir appeler updateEvent pour modifier 1 attribut
-	}
+
 	return event, nil
 }
 
@@ -88,7 +85,7 @@ func confirmEvent(event *Event) bool {
 	fmt.Printf("\nDate de fin         :"+color.Blue+" %s"+color.Reset, event.EndDate.Format("2006-01-02 15:04"))
 	fmt.Printf("\nLieu                :"+color.Blue+" %s"+color.Reset, event.Location)
 	fmt.Printf("\nCatégorie           :"+color.Blue+" %s"+color.Reset, event.Tag)
-	fmt.Printf("\nDescription        :"+color.Blue+" %s\n"+color.Reset, event.Description)
+	fmt.Printf("\nDescription         :"+color.Blue+" %s\n"+color.Reset, event.Description)
 
 	for {
 		fmt.Println("\ninformation correct ? (yes/no)")

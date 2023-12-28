@@ -69,10 +69,8 @@ func displayMenu() {
 	fmt.Println("--------------------------------------------------" + color.Reset)
 	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel événement")
 	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les événements")
-	fmt.Println(color.Cyan + " 3." + color.Reset + "  Modifier un événement")
-	fmt.Println(color.Cyan + " 4." + color.Reset + "  Supprimer un événement")
-	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un événement")
-	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
+	fmt.Println(color.Cyan + " 3." + color.Reset + "  Rechercher un événement")
+	fmt.Println(color.Cyan + " 4." + color.Reset + "  Quitter")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
@@ -90,34 +88,15 @@ func switchMenu(choice int) {
 		getEvents()
 		break
 	case 3:
-		//Va check dans le case 1 du GET
-		break
-	case 4:
 		clearScreen()
-		fmt.Println("Supprimer un événement")
-		var id int
-		var err error
-
-		for {
-			fmt.Println("Id de l'evenement que vous souhaitez supprimer : ")
-			id, err = input.InputInt()
-			if err == nil {
-				break
-			}
-			fmt.Println("Erreur de saisie")
-		}
-
-		deleteEvent(id)
-		break
-	case 5:
 		fmt.Println("Votre recherche ?")
 		tag := input.InputString()
 		events := searchEvent(tag)
 		displayEvents(events)
-		fmt.Println("Appuier sur entrez pour retourner au menu")
+		fmt.Println("Appuier sur une touche pour retourner au menu")
 		input.InputString()
 		break
-	case 6:
+	case 4:
 		exitRequested = true
 	}
 	if exitRequested {
@@ -375,15 +354,15 @@ func createEvent() {
 			fmt.Println("Voulez vous saisir un autre evennement ? (yes/no)")
 			res = input.InputString()
 			if res == "yes" {
-				continue
-			}
-			if res == "no" {
 				break
 			}
+			if res == "no" {
+				return
+			}
+			fmt.Println("valeur incorrecte")
 		}
-		break
+		continue
 	}
-	return
 }
 
 func getEvents() {
@@ -492,12 +471,12 @@ func searchEvent(query string) map[int]Event.Event {
 
 func containsEvent(event Event.Event, query string) bool {
 	// Rechercher la requête dans tous les attributs de l'événement
-	return SubString(event.Title, query) ||
-		SubString(event.Location, query) ||
-		SubString(event.Tag, query)
+	return subString(event.Title, query) ||
+		subString(event.Location, query) ||
+		subString(event.Tag, query)
 }
 
-func SubString(str, substr string) bool {
+func subString(str, substr string) bool {
 	// Vérifier si substr est une sous-chaîne de str (insensible à la casse)
 	str, substr = strings.ToLower(str), strings.ToLower(substr)
 	return strings.Contains(str, substr)

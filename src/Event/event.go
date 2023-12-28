@@ -36,6 +36,10 @@ func CreateEvent() (*Event, error) {
 				break
 			}
 			fmt.Println("Le format de la date n'est pas valide")
+			if event.StartDate.Before(time.Now()) {
+				fmt.Println("La date début ne peut pas être dans le passer")
+				continue
+			}
 		}
 		for {
 			fmt.Print("Entrez la date de fin (YYYY-MM-DD hh:mm): ")

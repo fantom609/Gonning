@@ -23,6 +23,10 @@ var (
 	userId    int
 )
 
+type EventsWrapper struct {
+	Events []Event.Event `json:"events"`
+}
+
 func main() {
 	exitRequested := false
 	var err error
@@ -438,7 +442,17 @@ func deleteEvent(id int) error {
 
 func jsonEvents(events *map[int]Event.Event) error {
 
-	jsonData, err := json.MarshalIndent(events, "", "  ")
+	var eventsList []Event.Event
+
+	for _, event := range *events {
+		eventsList = append(eventsList, event)
+	}
+
+	eventsWrapper := EventsWrapper{
+		Events: eventsList,
+	}
+
+	jsonData, err := json.MarshalIndent(eventsWrapper, "", "  ")
 	if err != nil {
 		return fmt.Errorf("erreur lors de la conversion en JSON")
 	}
@@ -447,11 +461,14 @@ func jsonEvents(events *map[int]Event.Event) error {
 	if err != nil {
 		return fmt.Errorf("erreur lors de la creation du fichier")
 	}
-	defer file.Close()
 
 	_, err = file.Write(jsonData)
 	if err != nil {
 		return fmt.Errorf("erreur lors de l'ecriture dans le fichier")
 	}
+
+	file.Close()
+
 	return nil
+
 }

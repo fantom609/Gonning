@@ -10,13 +10,13 @@ import (
 )
 
 type Event struct {
-	Id          int
-	Title       string
-	StartDate   time.Time
-	EndDate     time.Time
-	Location    string
-	Tag         string
-	Description string
+	Id          int       `json:"id"`
+	Title       string    `json:"title"`
+	StartDate   time.Time `json:"start-date"`
+	EndDate     time.Time `json:"end-date"`
+	Location    string    `json:"localisation"`
+	Tag         string    `json:"tag"`
+	Description string    `json:"description"`
 }
 
 func CreateEvent() (*Event, error) {

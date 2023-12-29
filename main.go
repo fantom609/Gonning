@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -23,6 +24,10 @@ var (
 	userId        int
 	exitRequested = false
 )
+
+type EventsWrapper struct {
+	Events []Event.Event `json:"events"`
+}
 
 func main() {
 	var err error
@@ -69,6 +74,7 @@ func displayMenu() {
 	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel événement")
 	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les événements")
 	fmt.Println(color.Cyan + " 3." + color.Reset + "  Visualiser un événement par l'id")
+	fmt.Println(color.Cyan + " 3." + color.Reset + "  Enregistrer les evenements")
 	fmt.Println(color.Cyan + " 4." + color.Reset + "  Rechercher un événement")
 	fmt.Println(color.Cyan + " 5." + color.Reset + "  Quitter")
 	fmt.Println()
@@ -110,6 +116,14 @@ func switchMenu(choice int) {
 			}
 			break
 		}
+		break
+	case 3:
+		fmt.Println("Enregistrer les evenements")
+		err := jsonEvents(&eventsMap)
+		if err == nil {
+			fmt.Print("Le fichier a ete cree avec succes !")
+		}
+		break
 	case 4:
 		clearScreen()
 		fmt.Println("Votre recherche ?")
@@ -525,4 +539,37 @@ func subString(str, substr string) bool {
 	// Vérifier si substr est une sous-chaîne de str (insensible à la casse)
 	str, substr = strings.ToLower(str), strings.ToLower(substr)
 	return strings.Contains(str, substr)
+}
+
+func jsonEvents(events *map[int]Event.Event) error {
+
+	var eventsList []Event.Event
+
+	for _, event := range *events {
+		eventsList = append(eventsList, event)
+	}
+
+	eventsWrapper := EventsWrapper{
+		Events: eventsList,
+	}
+
+	jsonData, err := json.MarshalIndent(eventsWrapper, "", "  ")
+	if err != nil {
+		return fmt.Errorf("erreur lors de la conversion en JSON")
+	}
+
+	file, err := os.Create("events.json")
+	if err != nil {
+		return fmt.Errorf("erreur lors de la creation du fichier")
+	}
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'ecriture dans le fichier")
+	}
+
+	file.Close()
+
+	return nil
+
 }

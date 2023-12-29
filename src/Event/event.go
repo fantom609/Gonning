@@ -1,9 +1,7 @@
 package Event
 
 import (
-	"database/sql"
 	"fmt"
-	"main/src/color"
 	"main/src/input"
 	"regexp"
 	"time"
@@ -24,7 +22,7 @@ func CreateEvent() (*Event, error) {
 	event := new(Event)
 	var err error
 
-	fmt.Print("Entrez le titre de l'événement: ")
+	fmt.Print("Entrez le titre de l'évènement: ")
 	event.Title = input.InputString()
 	for {
 		for {
@@ -37,7 +35,7 @@ func CreateEvent() (*Event, error) {
 			}
 			fmt.Println("Le format de la date n'est pas valide")
 			if event.StartDate.Before(time.Now()) {
-				fmt.Println("La date début ne peut pas être dans le passer")
+				fmt.Println("La date début ne peut pas être dans le passé")
 				continue
 			}
 		}
@@ -80,28 +78,6 @@ func valideDate(dateString string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("une erreur est survenue lors de la conversion de la date : %v", err)
 	}
 	return date, nil
-}
-
-func confirmEvent(event *Event) bool {
-
-	fmt.Printf("\nTitre de l'événement:"+color.Blue+" %s"+color.Reset, event.Title)
-	fmt.Printf("\nDate de début       :"+color.Blue+" %s"+color.Reset, event.StartDate.Format("2006-01-02 15:04"))
-	fmt.Printf("\nDate de fin         :"+color.Blue+" %s"+color.Reset, event.EndDate.Format("2006-01-02 15:04"))
-	fmt.Printf("\nLieu                :"+color.Blue+" %s"+color.Reset, event.Location)
-	fmt.Printf("\nCatégorie           :"+color.Blue+" %s"+color.Reset, event.Tag)
-	fmt.Printf("\nDescription         :"+color.Blue+" %s\n"+color.Reset, event.Description)
-
-	for {
-		fmt.Println("\ninformation correct ? (yes/no)")
-		res := input.InputString()
-		if res == "yes" {
-			return true
-		}
-		if res == "no" {
-			return false
-		}
-		fmt.Println("valeur incorrecte")
-	}
 }
 
 func UpdateChoices(Event *Event, choices int) {
@@ -164,8 +140,4 @@ func UpdateChoices(Event *Event, choices int) {
 
 		choices /= 10
 	}
-}
-
-func GetEvents(db *sql.DB) []Event {
-	return []Event{}
 }

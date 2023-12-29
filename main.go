@@ -42,7 +42,11 @@ func main() {
 	loopGetEvents() // récupération des événements de l'utilisateur connecté
 
 	if len(upcomingEvents()) > 0 {
-		fmt.Printf("Vous avez"+color.Orange+" %d "+color.Reset+"évenement aujoursd'hui voulez vous les voirs ? (yes/no)", len(upcomingEvents()))
+		if len(upcomingEvents()) == 1 {
+			fmt.Printf("Vous avez"+color.Orange+" %d "+color.Reset+"évènement aujourd'hui voulez vous les voir ? (yes/no)", len(upcomingEvents()))
+		} else {
+			fmt.Printf("Vous avez"+color.Orange+" %d "+color.Reset+"évènements aujourd'hui voulez vous les voir ? (yes/no)", len(upcomingEvents()))
+		}
 		exitRequested = loopUpComingEvents()
 	} // Affichage des événements jounaliés s'il y en a
 	var choice int
@@ -71,12 +75,12 @@ func displayMenu() {
 	fmt.Println()
 	fmt.Println(color.Blue + " Bienvenue dans le Système de gestion de plannings")
 	fmt.Println("--------------------------------------------------" + color.Reset)
-	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel événement")
-	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les événements")
-	fmt.Println(color.Cyan + " 3." + color.Reset + "  Visualiser un événement par l'id")
-	fmt.Println(color.Cyan + " 3." + color.Reset + "  Enregistrer les evenements")
-	fmt.Println(color.Cyan + " 4." + color.Reset + "  Rechercher un événement")
-	fmt.Println(color.Cyan + " 5." + color.Reset + "  Quitter")
+	fmt.Println(color.Cyan + " 1." + color.Reset + "  Créer un nouvel évènement")
+	fmt.Println(color.Cyan + " 2." + color.Reset + "  Visualiser les évènements")
+	fmt.Println(color.Cyan + " 3." + color.Reset + "  Visualiser un évènement par l'id")
+	fmt.Println(color.Cyan + " 4." + color.Reset + "  Enregistrer les évènements")
+	fmt.Println(color.Cyan + " 5." + color.Reset + "  Rechercher un évènement")
+	fmt.Println(color.Cyan + " 6." + color.Reset + "  Quitter")
 	fmt.Println()
 	fmt.Println("entrer votre choix :")
 }
@@ -97,7 +101,7 @@ func switchMenu(choice int) {
 		clearScreen()
 		var id int
 		var err error
-		fmt.Println("saisier l'id ou 0 pour quitter")
+		fmt.Println("saisir l'id ou 0 pour quitter")
 		for {
 			for {
 				id, err = input.InputInt()
@@ -117,29 +121,29 @@ func switchMenu(choice int) {
 			break
 		}
 		break
-	case 3:
-		fmt.Println("Enregistrer les evenements")
+	case 4:
+		fmt.Println("Enregistrer les évènements")
 		err := jsonEvents(&eventsMap)
 		if err == nil {
-			fmt.Print("Le fichier a ete cree avec succes !")
+			fmt.Print("Le fichier a été créé avec succès !")
 		}
 		break
-	case 4:
+	case 5:
 		clearScreen()
 		fmt.Println("Votre recherche ?")
 		tag := input.InputString()
 		events := searchEvent(tag)
 		displayEvents(events)
-		fmt.Println("Appuier sur une touche pour retourner au menu")
+		fmt.Println("Appuyer sur une touche pour retourner au menu")
 		input.InputString()
 		break
-	case 5:
+	case 6:
 		exitRequested = true
 	}
 	if exitRequested {
 		clearScreen()
 		db.Close()
-		fmt.Println(color.Orange + "Aurevoir !" + color.Reset)
+		fmt.Println(color.Orange + "Au revoir !" + color.Reset)
 		os.Exit(1)
 	}
 }
@@ -180,10 +184,10 @@ func displayEvents(Events map[int]Event.Event) {
 	}
 
 	for {
-		fmt.Println("Comment voulez vous trier les événements ? (Titre,Date,Tag,Lieux)")
+		fmt.Println("Comment voulez vous trier les évènements ? (Titre,Date,Tag,Lieu)")
 		sortBy = input.InputString()
-		if sortBy != "Titre" && sortBy != "Date" && sortBy != "Tag" && sortBy != "Lieux" {
-			fmt.Println("La valeur saisi est incorrect")
+		if sortBy != "Titre" && sortBy != "Date" && sortBy != "Tag" && sortBy != "Lieu" {
+			fmt.Println("La valeur saisie est incorrecte")
 			continue
 		}
 		break
@@ -198,7 +202,7 @@ func displayEvents(Events map[int]Event.Event) {
 			return strings.ToLower(ss[i].Value.Title) < strings.ToLower(ss[j].Value.Title)
 		case "Tag":
 			return strings.ToLower(ss[i].Value.Tag) < strings.ToLower(ss[j].Value.Tag)
-		case "Lieux":
+		case "Lieu":
 			return strings.ToLower(ss[i].Value.Location) < strings.ToLower(ss[j].Value.Location)
 		default:
 			// Par défaut, tri par date
@@ -218,17 +222,17 @@ func displayEvent(event Event.Event) {
 
 	clearScreen()
 	fmt.Printf(color.Blue+"%s\n"+color.Reset, event.Title)
-	fmt.Printf("Débute a    : %s\n", event.StartDate.Format("2006-01-02 15:04"))
-	fmt.Printf("Termine a   : %s\n", event.EndDate.Format("2006-01-02 15:04"))
-	fmt.Printf("durée       : %s\n", event.EndDate.Sub(event.StartDate))
+	fmt.Printf("Débute à    : %s\n", event.StartDate.Format("2006-01-02 15:04"))
+	fmt.Printf("Termine à   : %s\n", event.EndDate.Format("2006-01-02 15:04"))
+	fmt.Printf("D'une durée de       : %s\n", event.EndDate.Sub(event.StartDate))
 	fmt.Printf("Tag         : %s\n", event.Tag)
-	fmt.Printf("description : %s\n", event.Description)
+	fmt.Printf("Description : %s\n", event.Description)
 	return
 }
 
 func displayModification() {
 	fmt.Println()
-	fmt.Println(color.White + "Que souhaitez vous modifiez : ")
+	fmt.Println(color.White + "Que souhaitez vous modifier : ")
 	fmt.Println("--------------------------------------------------" + color.Reset)
 	fmt.Println(color.Red + " 1." + color.Reset + "  pour modifier le titre")
 	fmt.Println(color.Orange + " 2." + color.Reset + "  pour modifier la date de début")
@@ -245,10 +249,10 @@ Cette fonction permet de récupérer l'id de l'utilisateur avec son username et 
 */
 func userConnection() int {
 
-	fmt.Println("saisisez votre identifiant")
+	fmt.Println("Saisissez votre identifiant")
 	username := input.InputString()
 
-	fmt.Println("saisisez votre mot de passe")
+	fmt.Println("Saisissez votre mot de passe")
 	password := input.InputString()
 
 	id, err := database.ConnectUser(db, username, password)
@@ -321,8 +325,8 @@ func loopUpComingEvents() bool {
 		if choice == "yes" {
 			events := upcomingEvents()
 			displayEvents(events)
-			fmt.Println("\nAcces au menu : 1")
-			fmt.Println("quitter : 2")
+			fmt.Println("\nAccès au menu : 1")
+			fmt.Println("Quitter : 2")
 			for {
 				res, err := input.InputInt()
 				if err != nil || res != 1 && res != 2 {
@@ -374,7 +378,7 @@ func createEvent() {
 		displayEvent(*event)
 
 		for {
-			fmt.Println("\ninformation correct ? (yes/no)")
+			fmt.Println("\nÊtes-vous sûr de vos choix ? (yes/no)")
 			res := input.InputString()
 			if res == "yes" {
 				break
@@ -383,12 +387,12 @@ func createEvent() {
 				updateEvent(id)
 				continue
 			}
-			fmt.Println("valeur incorrecte")
+			fmt.Println("Valeur incorrecte")
 		}
 
 		var res string
 		for res != "yes" && res != "no" {
-			fmt.Println("Voulez vous saisir un autre evennement ? (yes/no)")
+			fmt.Println("Voulez vous saisir un autre évènement ? (yes/no)")
 			res = input.InputString()
 			if res == "yes" {
 				break
@@ -396,7 +400,7 @@ func createEvent() {
 			if res == "no" {
 				return
 			}
-			fmt.Println("valeur incorrecte")
+			fmt.Println("Valeur incorrecte")
 		}
 		continue
 	}
@@ -406,20 +410,20 @@ func getEvent(id int) error {
 	var err error
 	_, existe := eventsMap[id]
 	if !existe {
-		return errors.New("L'id saisie n'existe pas")
+		return errors.New("l'id saisi n'existe pas")
 	}
 	displayEvent(eventsMap[id])
 
-	fmt.Println("\nmodifier l'évenement : 1")
-	fmt.Println("supprimer l'évenement : 2")
-	fmt.Println("Revenir au menu : 3")
-	fmt.Println("quitter : 4")
+	fmt.Println(color.Yellow + "\nModifier l'évènement : 1" + color.Reset)
+	fmt.Println(color.Orange + "Supprimer l'évènement : 2" + color.Reset)
+	fmt.Println(color.Blue + "Revenir au menu : 3" + color.Reset)
+	fmt.Println(color.Red + "Quitter : 4" + color.Reset)
 
 	var res int
 	for {
 		res, err = input.InputInt()
 		if err != nil || res != 1 && res != 2 && res != 3 && res != 4 {
-			fmt.Println("Saisi invalide")
+			fmt.Println("Saisie invalide")
 			continue
 		}
 		break
@@ -430,10 +434,10 @@ func getEvent(id int) error {
 		break
 	case 2:
 		for {
-			fmt.Println(color.Red + "étes vous sur de vouloir supprimer l'évenement ? (yes/no)" + color.Reset)
+			fmt.Println(color.Red + "Êtes-vous sur de vouloir supprimer l'évènement ? (yes/no)" + color.Reset)
 			conf := input.InputString()
 			if conf != "yes" && conf != "no" {
-				fmt.Println("Saisi invalide")
+				fmt.Println("Saisie invalide")
 				continue
 			}
 			if conf == "yes" {
@@ -460,14 +464,14 @@ func getEvents() {
 
 	displayEvents(eventsMap)
 
-	fmt.Println("Entrez le numéro de l'événement pour voir plus de détails ou 0 pour revenir :")
+	fmt.Println("Entrez le numéro de l'évènement pour voir plus de détails ou 0 pour revenir :")
 	for {
 		for {
 			id, err = input.InputInt()
 			if err == nil {
 				break
 			}
-			fmt.Println("Saisi invalide")
+			fmt.Println("Saisie invalide")
 		}
 		if id == 0 {
 			return
@@ -484,7 +488,7 @@ func getEvents() {
 }
 
 func updateEvent(id int) {
-	fmt.Println("Modifier un événement")
+	fmt.Println("Modifier un évènement")
 
 	var err error
 	var choice int

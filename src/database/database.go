@@ -18,7 +18,7 @@ func ReadConfig() (string, error) {
 	// Ouvrez le fichier en lecture seulement
 	file, err := os.Open(configFile)
 	if err != nil {
-		return "", errors.New("le fichier n'a pu etre ouvert")
+		return "", errors.New("le fichier n'a pu être ouvert")
 	}
 	defer file.Close()
 
@@ -61,7 +61,7 @@ func ConnectionDatabase() (*sql.DB, error) {
 	db, err := sql.Open("postgres", config)
 
 	if err != nil {
-		return nil, fmt.Errorf("une erreur est survenue lors de la connection a la base de données : %v", err)
+		return nil, fmt.Errorf("une erreur est survenue lors de la connexion à la base de données : %v", err)
 	}
 
 	err = db.Ping()
@@ -120,7 +120,7 @@ func PatchEvent(event *Event.Event, db *sql.DB) error {
 		return fmt.Errorf("erreur lors de la requête UPDATE : %v", err)
 	}
 
-	fmt.Println("L'evenement est modifié!")
+	fmt.Println("L'évènement a été modifié!")
 	return nil
 }
 
@@ -128,7 +128,7 @@ func DeleteEvent(db *sql.DB, id int) error {
 
 	result, err := db.Exec("DELETE FROM EVENT WHERE id = $1", id)
 	if err != nil {
-		return fmt.Errorf("erreur lors de la requete %v", err)
+		return fmt.Errorf("erreur lors de la requête %v", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -137,10 +137,10 @@ func DeleteEvent(db *sql.DB, id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("aucun evenement n'a ete supprimé pour l'ID %d", id)
+		return fmt.Errorf("aucun évènement a ete supprimé pour l'ID %d", id)
 	}
 
-	fmt.Println("L'evenement a ete supprime")
+	fmt.Println("L'évènement a été supprimé !")
 
 	return nil
 }
@@ -150,7 +150,7 @@ func GetEvents(db *sql.DB, events map[int]Event.Event, userId int) error {
 	req := "SELECT id,title,startdate,enddate,location,tag,description FROM event WHERE id_utilisateur = $1"
 	rows, err := db.Query(req, userId)
 	if err != nil {
-		return fmt.Errorf("erreur lors de la requéte %v", err)
+		return fmt.Errorf("erreur lors de la requête %v", err)
 	}
 	defer rows.Close()
 
@@ -171,7 +171,7 @@ func ConnectUser(db *sql.DB, username string, password string) (int, error) {
 	req := "SELECT id FROM utilisateur WHERE username = $1 AND password = $2"
 	err := db.QueryRow(req, username, password).Scan(&userId)
 	if err != nil {
-		return 0, fmt.Errorf("nom d'utilisateur ou mot de passe incorrecte")
+		return 0, fmt.Errorf("nom d'utilisateur ou mot de passe incorrect")
 	}
 	return userId, nil
 }

@@ -22,7 +22,7 @@ func CreateEvent() (*Event, error) {
 	event := new(Event)
 	var err error
 
-	fmt.Print("Entrez le titre de l'évènement: ")
+	fmt.Print("Entrez le titre de l'événement: ")
 	event.Title = input.InputString()
 	for {
 		for {
